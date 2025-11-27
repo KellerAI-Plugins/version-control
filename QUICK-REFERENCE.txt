@@ -1,0 +1,283 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                  WORKFLOW STANDARDIZATION QUICK REFERENCE                  ║
+║                                                                            ║
+║  Version: 1.0 | Date: November 27, 2024 | Status: Complete ✅             ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 DOCUMENTATION OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  START HERE → WORKFLOWS-README.md
+    ↓
+    ├─→ Understanding Standards? → WORKFLOWS-STANDARD.md
+    ├─→ Migrating a Project? → WORKFLOW-MIGRATION-GUIDE.md
+    ├─→ Verifying Setup? → STANDARDIZATION-CHECKLIST.md
+    └─→ Why Standardize? → STANDARDIZATION-ANALYSIS.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚀 THREE WORKFLOWS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌─────────────────────────────────────────────────────────────────┐
+  │ ✅ VALIDATE PR                                                   │
+  │ File: validate-pr.yml                                            │
+  │ Trigger: PR open/synchronize/reopen                             │
+  │ Purpose: Security & structure validation                         │
+  │ Permissions: read contents, write PR comments                   │
+  │                                                                  │
+  │ Runs:                                                            │
+  │   • Frontmatter validation                                      │
+  │   • File size checks                                            │
+  │   • Blocked files detection                                     │
+  │   • Agent/skill consistency                                     │
+  └─────────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────────┐
+  │ 🔨 CODERABBIT AUTO-FIX                                           │
+  │ File: coderabbit-auto-fix.yml                                    │
+  │ Trigger: PR open/synchronize/reopen                             │
+  │ Purpose: Automatic formatting & linting fixes                   │
+  │ Permissions: write contents, write PR comments                  │
+  │                                                                  │
+  │ Runs:                                                            │
+  │   • Prettier formatting                                         │
+  │   • ESLint auto-fix                                             │
+  │   • Frontmatter validation                                      │
+  │   • Common issues fixing                                        │
+  │   • Creates commit & comment                                    │
+  └─────────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────────┐
+  │ 💬 CODERABBIT FEEDBACK HANDLER                                   │
+  │ File: coderabbit-feedback.yml                                    │
+  │ Trigger: Comment created (CodeRabbit only)                      │
+  │ Purpose: React to CodeRabbit feedback                           │
+  │ Permissions: write contents, write PR comments                  │
+  │                                                                  │
+  │ Runs:                                                            │
+  │   • Prettier formatting                                         │
+  │   • ESLint auto-fix                                             │
+  │   • Frontmatter validation                                      │
+  │   • Creates commit & reply comment                              │
+  └─────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🛠️  FIVE VALIDATION SCRIPTS (.github/scripts/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. validate-frontmatter.js
+     → Validates YAML in agents/skills/commands
+     → Checks for required fields (name, description)
+     → Run: node .github/scripts/validate-frontmatter.js
+
+  2. fix-common-issues.js
+     → Removes trailing whitespace
+     → Ensures file ends with newline
+     → Fixes line ending consistency
+     → Run: node .github/scripts/fix-common-issues.js
+
+  3. check-file-sizes.js
+     → Enforces size limits (1 MB default, 500 KB images)
+     → Prevents video files
+     → Run: node .github/scripts/check-file-sizes.js
+
+  4. check-blocked-files.js
+     → Blocks .env, keys, credentials
+     → Detects suspicious patterns
+     → Run: node .github/scripts/check-blocked-files.js
+
+  5. verify-agent-consistency.js
+     → Checks naming consistency
+     → Validates metadata
+     → Detects duplicates
+     → Run: node .github/scripts/verify-agent-consistency.js
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📐 STANDARDIZATION RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  GIT IDENTITY (ALL PROJECTS)
+  ──────────────────────────
+  Name:  KellerAI CI
+  Email: ci@kellerai.dev
+
+  COMMIT MESSAGE FORMAT
+  ─────────────────────
+  ci: apply CodeRabbit feedback
+
+  - Code formatting (Prettier)
+  - Linting rules (ESLint)
+  - YAML frontmatter validation
+  - Whitespace normalization
+
+  COMMENT FORMAT (EMOJI CONVENTION)
+  ────────────────────────────────
+  🤖 Main auto-fix report
+  ✅ Successful fixes applied
+  🔍 Validation checks
+  ⚠️  Warnings or issues
+
+  TOOL VERSIONS (CONSISTENT)
+  ──────────────────────────
+  Node.js:               18
+  actions/checkout:      v4
+  actions/setup-node:    v4
+  actions/github-script: v7
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚀 MIGRATION STEPS (5 MINUTES)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. COPY WORKFLOWS
+     ├─ coderabbit-auto-fix.yml → .github/workflows/
+     ├─ coderabbit-feedback.yml → .github/workflows/
+     └─ validate-pr.yml → .github/workflows/
+
+  2. COPY SCRIPTS
+     └─ .github/scripts/ directory (all 5 scripts)
+
+  3. CUSTOMIZE (IF NEEDED)
+     └─ Update git identity if different
+     └─ Update file patterns if different structure
+     └─ Update Node.js version if different
+
+  4. TEST
+     └─ Create test PR
+     └─ Verify workflows run
+     └─ Verify comment format correct
+
+  5. MERGE
+     └─ Commit changes
+     └─ Create PR
+     └─ Merge when ready
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 CURRENT STATUS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  STANDARDIZED ✅
+  ├─ reaper-lint (complete)
+  └─ chief-of-staff (workflows exist, ready for scripts)
+
+  PHASE 2 (READY) ⏳
+  ├─ dev-tools
+  ├─ thinking-memory
+  └─ task-management
+
+  PHASE 3 (PLANNED) 📋
+  ├─ docling-preppy
+  ├─ kellerai-agentos-chatbot
+  ├─ pipeline-master
+  └─ prospect-classify
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ STANDARDIZATION CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  FILES
+  ─────
+  ☐ .github/workflows/validate-pr.yml exists
+  ☐ .github/workflows/coderabbit-auto-fix.yml exists
+  ☐ .github/workflows/coderabbit-feedback.yml exists
+  ☐ .github/scripts/validate-frontmatter.js exists
+  ☐ .github/scripts/fix-common-issues.js exists
+  ☐ .github/scripts/check-file-sizes.js exists
+  ☐ .github/scripts/check-blocked-files.js exists
+  ☐ .github/scripts/verify-agent-consistency.js exists
+
+  GIT CONFIGURATION
+  ──────────────────
+  ☐ Git user.name = "KellerAI CI"
+  ☐ Git user.email = "ci@kellerai.dev"
+  ☐ Commits use standard author
+
+  COMMIT MESSAGE
+  ──────────────
+  ☐ Format: "ci: apply CodeRabbit feedback"
+  ☐ Includes bulleted list of fixes
+  ☐ Author: KellerAI CI <ci@kellerai.dev>
+
+  COMMENT FORMAT
+  ──────────────
+  ☐ Uses 🤖 for main report
+  ☐ Uses ✅ for fixes
+  ☐ Uses 🔍 for checks
+  ☐ Uses ⚠️  for warnings
+  ☐ Standard structure followed
+
+  TESTING
+  ───────
+  ☐ Test PR created
+  ☐ Workflows ran successfully
+  ☐ Comments appeared
+  ☐ Format correct
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📞 GETTING HELP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Question                          Go To
+  ──────────────────────────────────────────────────────────────
+  How do I migrate my project?      WORKFLOW-MIGRATION-GUIDE.md
+  What is the standard?             WORKFLOWS-STANDARD.md
+  Why are we standardizing?         STANDARDIZATION-ANALYSIS.md
+  Is my setup correct?              STANDARDIZATION-CHECKLIST.md
+  Quick overview?                   WORKFLOWS-README.md
+  How do I get started?             This file + README
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📂 FILE LOCATIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  All files in: /Users/jonathans_macbook/_fresh-claude/kellerAI-core/reaper-lint/
+
+  Documentation:
+  ├─ WORKFLOWS-README.md (START HERE)
+  ├─ WORKFLOWS-STANDARD.md
+  ├─ WORKFLOW-MIGRATION-GUIDE.md
+  ├─ STANDARDIZATION-ANALYSIS.md
+  ├─ STANDARDIZATION-CHECKLIST.md
+  ├─ IMPLEMENTATION-SUMMARY.md
+  └─ QUICK-REFERENCE.txt (this file)
+
+  Workflows:
+  .github/workflows/
+  ├─ validate-pr.yml
+  ├─ coderabbit-auto-fix.yml
+  └─ coderabbit-feedback.yml
+
+  Scripts:
+  .github/scripts/
+  ├─ validate-frontmatter.js
+  ├─ fix-common-issues.js
+  ├─ check-file-sizes.js
+  ├─ check-blocked-files.js
+  └─ verify-agent-consistency.js
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✨ WHAT YOU GET
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✅ Consistent workflows across all projects
+  ✅ Automatic code formatting (Prettier)
+  ✅ Automatic linting fixes (ESLint)
+  ✅ Security checks (blocked files, no credentials)
+  ✅ Quality validation (frontmatter, consistency)
+  ✅ Standard commit messages
+  ✅ Standard comment format
+  ✅ Clear implementation path
+  ✅ Comprehensive documentation
+  ✅ Testing procedures
+  ✅ Troubleshooting guides
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Ready to get started?
+  1. Read WORKFLOWS-README.md
+  2. Pick your path (understand standard or migrate)
+  3. Follow the guide
+  4. Use STANDARDIZATION-CHECKLIST.md to verify
+
+Questions? Everything is documented above. Start with WORKFLOWS-README.md!
+

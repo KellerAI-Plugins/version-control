@@ -11,8 +11,17 @@ allowed-tools:
   - mcp__plugin_morphllm_morphllm-mcp__write_file
   - mcp__plugin_morphllm_morphllm-mcp__create_directory
   - mcp__plugin_morphllm_morphllm-mcp__read_file
+  - mcp__agent-mail__ensure_project
+  - mcp__agent-mail__register_agent
+  - mcp__agent-mail__fetch_inbox
+  - mcp__agent-mail__send_message
+  - mcp__agent-mail__reply_message
+  - mcp__agent-mail__acknowledge_message
+  - mcp__agent-mail__file_reservation_paths
+  - mcp__agent-mail__release_file_reservations
+  - mcp__agent-mail__macro_start_session
+skills: cos-og:universal-agent-protocol
 ---
-
 # Repository Initializer Agent
 
 Orchestrates complete repository initialization to KellerAI standards. Creates all required directories, configuration files, and integrations in a single atomic operation.

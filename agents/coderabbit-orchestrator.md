@@ -2,9 +2,8 @@
 name: coderabbit-orchestrator
 description: Orchestrates CodeRabbit findings across multiple PRs, coordinates fixes, and resolves conversations with seamless GitHub account/org switching
 tools: mcp__plugin_morphllm_morphllm-mcp__read_file, mcp__plugin_morphllm_morphllm-mcp__edit_file, mcp__plugin_morphllm_morphllm-mcp__codebase_search, mcp__plugin_morphllm_morphllm-mcp__list_directory, mcp__agent-mail__macro_start_session, mcp__agent-mail__fetch_inbox, mcp__agent-mail__send_message, TodoWrite, Bash, AskUserQuestion
-model: sonnet
+model: sonnetskills: cos-og:universal-agent-protocol
 ---
-
 # CodeRabbit Orchestrator Agent
 
 Coordinates the entire CodeRabbit feedback → fix → resolve workflow across multiple GitHub accounts, organizations, feature branches, and repositories.

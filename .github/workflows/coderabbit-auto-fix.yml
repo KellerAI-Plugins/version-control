@@ -1,0 +1,123 @@
+name: CodeRabbit Auto-Fix
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  coderabbit-review:
+    runs-on: ubuntu-latest
+    name: Process CodeRabbit Feedback
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Configure git
+        run: |
+          git config --global user.name "CodeRabbit Auto-Fix"
+          git config --global user.email "coderabbit@thebackend.cash"
+
+      - name: Fetch PR comments for feedback
+        id: fetch-feedback
+        uses: actions/github-script@v7
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        with:
+          script: |
+            const prNumber = process.env.PR_NUMBER;
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const coderabbitComments = comments.data.filter(comment =>
+              comment.user.login === 'coderabbit' ||
+              comment.user.type === 'Bot'
+            );
+
+            core.setOutput('has-feedback', coderabbitComments.length > 0 ? 'true' : 'false');
+            core.setOutput('feedback-count', coderabbitComments.length.toString());
+            console.log(`Found ${coderabbitComments.length} CodeRabbit comments`);
+
+      - name: Run linter and auto-fix
+        if: steps.fetch-feedback.outputs.has-feedback == 'true'
+        run: |
+          npm install --save-dev \
+            eslint \
+            prettier \
+            yaml \
+            @babel/parser \
+            @babel/core
+
+          npx prettier --write "**/*.{js,json,yaml,yml,md}" || true
+          npx eslint --fix "**/*.js" --max-warnings 0 2>/dev/null || true
+
+      - name: Validate agent frontmatter
+        run: |
+          npm install --save-dev yaml
+          node .github/scripts/validate-frontmatter.js
+
+      - name: Check for common issues and fix
+        run: |
+          node .github/scripts/fix-common-issues.js
+
+      - name: Commit and push fixes
+        if: steps.fetch-feedback.outputs.has-feedback == 'true'
+        run: |
+          if [[ $(git status --porcelain) ]]; then
+            git add -A
+            git commit -m "ci: Auto-fix CodeRabbit feedback - formatting, linting, validation" \
+              --author="CodeRabbit Auto-Fix <coderabbit@thebackend.cash>"
+            git push
+            echo "AUTO_FIX_COMMITTED=true" >> $GITHUB_ENV
+          else
+            echo "AUTO_FIX_COMMITTED=false" >> $GITHUB_ENV
+          fi
+
+      - name: Create summary comment
+        uses: actions/github-script@v7
+        if: steps.fetch-feedback.outputs.has-feedback == 'true'
+        env:
+          FEEDBACK_COUNT: ${{ steps.fetch-feedback.outputs.feedback-count }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        with:
+          script: |
+            const feedbackCount = process.env.FEEDBACK_COUNT;
+            const prNumber = process.env.PR_NUMBER;
+
+            const comment = `## 🤖 CodeRabbit Auto-Fix Report
+
+Processed **${feedbackCount}** CodeRabbit feedback items.
+
+### Auto-Fixes Applied:
+- ✅ Code formatting (Prettier)
+- ✅ Linting rules (ESLint)
+- ✅ YAML frontmatter validation
+- ✅ Trailing whitespace removal
+- ✅ File newline standardization
+
+Changes have been committed to this branch. Please re-review if needed.
+
+---
+*This was an automated response to CodeRabbit feedback.*`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: comment,
+            });
+

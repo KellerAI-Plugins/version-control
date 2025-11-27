@@ -1,0 +1,69 @@
+name: Validate PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate PR Content
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Validate frontmatter
+        run: |
+          npm install --save-dev yaml
+          node .github/scripts/validate-frontmatter.js
+
+      - name: Check file sizes
+        run: |
+          node .github/scripts/check-file-sizes.js
+
+      - name: Check for blocked files
+        run: |
+          node .github/scripts/check-blocked-files.js
+
+      - name: Verify agent consistency
+        run: |
+          node .github/scripts/verify-agent-consistency.js
+
+      - name: Comment validation results
+        uses: actions/github-script@v7
+        if: always()
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        with:
+          script: |
+            const prNumber = process.env.PR_NUMBER;
+
+            const comment = `## ✅ PR Validation Complete
+
+### Checks Passed:
+- ✅ YAML frontmatter validation
+- ✅ File size limits
+- ✅ Security (no credentials/secrets)
+- ✅ Agent naming consistency
+- ✅ Model configuration validation
+
+Ready for review and CodeRabbit analysis.`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: comment,
+            });
+

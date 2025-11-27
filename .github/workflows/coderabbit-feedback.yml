@@ -1,0 +1,97 @@
+name: CodeRabbit Feedback Handler
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  handle-feedback:
+    if: github.event.comment.user.login == 'coderabbit'
+    runs-on: ubuntu-latest
+    name: Process CodeRabbit Comments
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Configure git
+        run: |
+          git config --global user.name "CodeRabbit Auto-Handler"
+          git config --global user.email "coderabbit@thebackend.cash"
+
+      - name: Install dependencies
+        run: |
+          npm install --save-dev \
+            eslint \
+            prettier \
+            yaml \
+            @babel/parser
+
+      - name: Auto-fix formatting issues
+        run: |
+          echo "Applying Prettier fixes..."
+          npx prettier --write "**/*.{js,json,yaml,yml,md}" 2>/dev/null || true
+
+          echo "Applying ESLint fixes..."
+          npx eslint --fix "**/*.js" --max-warnings 0 2>/dev/null || true
+
+      - name: Fix common linting issues
+        run: |
+          node .github/scripts/fix-common-issues.js
+
+      - name: Validate fixes
+        run: |
+          npm install --save-dev yaml
+          node .github/scripts/validate-frontmatter.js
+
+      - name: Commit fixes if needed
+        run: |
+          if [[ $(git status --porcelain) ]]; then
+            git add -A
+            git commit -m "ci: Apply CodeRabbit feedback - automated fixes" \
+              --author="CodeRabbit Auto-Handler <coderabbit@thebackend.cash>"
+            git push
+            echo "COMMITTED=true" >> $GITHUB_ENV
+          else
+            echo "COMMITTED=false" >> $GITHUB_ENV
+          fi
+
+      - name: Add summary reply
+        uses: actions/github-script@v7
+        if: env.COMMITTED == 'true'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        with:
+          script: |
+            const prNumber = process.env.PR_NUMBER;
+
+            const reply = `## ✅ Auto-Fix Applied
+
+I've automatically applied fixes for:
+- Code formatting (Prettier)
+- Linting rules (ESLint)
+- YAML validation
+- Whitespace normalization
+
+Changes committed. Please review and request re-evaluation if needed.`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: reply,
+            });
+

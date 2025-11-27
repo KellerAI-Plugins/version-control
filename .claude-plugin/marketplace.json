@@ -1,0 +1,9 @@
+{
+  "name": "version-control",
+  "description": "Unified GitHub coordination engine integrating Claude Code, TaskMaster, CodeRabbit, and multi-account/org workflows",
+  "category": "developer-tools",
+  "tags": ["github", "coderabbit", "pr-management", "code-review", "automation", "coordination"],
+  "repository": "https://github.com/KellerAI-Plugins/version-control",
+  "author": "KellerAI",
+  "license": "MIT"
+}

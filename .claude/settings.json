@@ -1,0 +1,13 @@
+{
+    "env": {
+        "CLAUDE_PROJECT_DIR": "~/_kellerai-demo/kellerai-plugin-inventory"
+    },
+    "permissions": {
+        "allow": [],
+        "deny": [],
+        "ask": [],
+        "defaultMode": "bypassPermissions",
+        "additionalDirectories": ["~/.claude/debug"]
+    },
+    "enableAllProjectMcpServers": true
+}
